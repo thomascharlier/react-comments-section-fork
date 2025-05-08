@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { useContext } from 'react'
 import { GlobalContext } from '../../context/Provider'
-import { EditorState, ContentState, convertToRaw } from 'draft-js'
+import { EditorState, ContentState, convertToRaw, Modifier } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
 import draftToHtml from 'draftjs-to-html'
 import htmlToDraft from 'html-to-draftjs'
+import { OrderedSet } from 'immutable'
 
 interface AdvancedInputProps {
   formStyle?: object
-  handleSubmit: Function
+  handleSubmit: (value: string) => void
   mode?: string
   cancelBtnStyle?: object
   submitBtnStyle?: object
@@ -18,6 +19,7 @@ interface AdvancedInputProps {
   imgDiv?: object
   customImg?: string
   text: string
+  users: any
   placeHolder?: string
 }
 
@@ -32,6 +34,7 @@ const AdvancedInput = ({
   imgStyle,
   customImg,
   text,
+  users,
   placeHolder
 }: AdvancedInputProps) => {
   const [html, setHtml] = useState('<p></p>')
@@ -48,17 +51,98 @@ const AdvancedInput = ({
   }, [html])
 
   const contentBlock = htmlToDraft(html)
-  const contentState = ContentState.createFromBlockArray(
-    contentBlock.contentBlocks
-  )
-  const [editorState, setEditor] = useState(
-    EditorState.createWithContent(contentState)
-  )
-  const [editText, setEditText] = useState<string>('')
+  const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks)
 
-  const onEditorStateChange: Function = (editorState: any) => {
-    setEditor(editorState)
-  }
+  // States
+  const [editorState, setEditor] = useState(EditorState.createWithContent(contentState));
+  const [editText, setEditText] = useState<string>('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredUsers, setFilteredUsers] = useState(users); 
+
+  const onEditorStateChange = (editorState: EditorState) => {
+    setEditor(editorState);
+  
+    const plainText = editorState.getCurrentContent().getPlainText();
+    const selection = editorState.getSelection();
+    const anchorOffset = selection.getAnchorOffset();
+  
+    // Find last "@" and extract text after it
+    const lastAtIndex = plainText.lastIndexOf("@", anchorOffset);
+    if (lastAtIndex !== -1) {
+      const mentionText = plainText.substring(lastAtIndex + 1, anchorOffset).toLowerCase();
+  
+      // Show dropdown & filter users only if user types after "@"
+      if (mentionText.length > 0) {
+        setFilteredUsers(users.filter((user: any) =>
+          user.firstName.toLowerCase().startsWith(mentionText) ||
+          user.lastName.toLowerCase().startsWith(mentionText)
+        ));
+        setShowDropdown(filteredUsers.length > 0);
+      } else {
+        setFilteredUsers(users);
+        setShowDropdown(true); // Show full list if "@" is alone
+      }
+    } else {
+      setShowDropdown(false); // Hide dropdown if "@" is removed
+    }
+  };
+
+  const handleSelect = (user: any) => {
+    const fullName = `@${user.firstName} ${user.lastName}`;
+  
+    let contentState = editorState.getCurrentContent();
+    let selection = editorState.getSelection();
+  
+    // Find the last typed "@"
+    const plainText = contentState.getPlainText();
+    const lastAtIndex = plainText.lastIndexOf("@");
+  
+    if (lastAtIndex !== -1) {
+      // Create selection from "@" to the cursor position (deleting input)
+      const mentionSelection = selection.merge({
+        anchorOffset: lastAtIndex,
+        focusOffset: selection.getAnchorOffset(), // Extend selection to the cursor
+      });
+  
+      // Replace "@typedText" with "@Full Name"
+      contentState = Modifier.replaceText(
+        contentState,
+        mentionSelection,
+        fullName, // Insert "@Full Name"
+        editorState.getCurrentInlineStyle().add("MENTION")
+      );
+  
+      // Push updated content state
+      let newEditorState = EditorState.push(editorState, contentState, "insert-characters");
+  
+      // Insert a space after mention
+      const spaceSelection = newEditorState.getSelection();
+      const spaceInsertedContent = Modifier.insertText(
+        newEditorState.getCurrentContent(),
+        spaceSelection,
+        " ", // Insert a space
+        OrderedSet() // Reset styles
+      );
+  
+      // Push space-inserted content state
+      newEditorState = EditorState.push(newEditorState, spaceInsertedContent, "insert-characters");
+  
+      // Reset styles so new text is normal
+      newEditorState = EditorState.setInlineStyleOverride(newEditorState, OrderedSet());
+  
+      setEditor(newEditorState);
+      setShowDropdown(false); // Hide dropdown
+    }
+  };
+  
+  /*
+  const styleToHTML = (style: any) => {
+    if (style === 'MENTION') {
+      return <span style={{ color: "blue", fontWeight: "bold" }} />;
+    }
+  };
+  */
+
   useEffect(() => {
     setEditText(
       draftToHtml(convertToRaw(editorState.getCurrentContent())).trim()
@@ -86,7 +170,7 @@ const AdvancedInput = ({
       </div>
       <div className='advanced-input'>
         <form
-          className='form advanced-form '
+          className='form advanced-form'
           style={globalStore.formStyle || formStyle}
           onSubmit={async (e) =>
             editText != '<p></p>'
@@ -102,6 +186,9 @@ const AdvancedInput = ({
               onEditorStateChange={(editorState) =>
                 onEditorStateChange(editorState)
               }
+              customStyleMap={{
+                MENTION: { color: "blue" }
+              }}
               toolbar={{
                 options: [
                   'inline',
@@ -170,6 +257,27 @@ const AdvancedInput = ({
               }}
             />
           </div>
+
+          {/* Dropdown */}
+          {showDropdown && filteredUsers.length > 0 && (
+            <div className="comment-dropdown-wrapper">
+              <div className="comment-dropdown">
+                {filteredUsers.map((user: any, index: number) => (
+                  <div
+                    key={index}
+                    className="dropdown-item"
+                    onClick={() => handleSelect(user)}
+                  >
+                    <div className="user-initials">
+                      <span>{user.firstName.charAt(0)} {user.lastName.charAt(0)}</span>
+                    </div>
+                    <div className="user-name">{user.firstName} {user.lastName}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* <div
             dangerouslySetInnerHTML={{
               __html: text

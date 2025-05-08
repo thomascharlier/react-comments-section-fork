@@ -6,6 +6,7 @@ export const GlobalContext = createContext({})
 
 export const GlobalProvider = ({
   children,
+  users,
   currentUser,
   replyTop,
   customImg,
@@ -27,6 +28,7 @@ export const GlobalProvider = ({
   placeHolder
 }: {
   children: any
+  users: any
   currentUser?: {
     currentUserId: string
     currentUserImg: string
@@ -229,6 +231,7 @@ export const GlobalProvider = ({
   return (
     <GlobalContext.Provider
       value={{
+        users: users,
         currentUserData: currentUserData,
         replyTop: replyTop,
         data: data,

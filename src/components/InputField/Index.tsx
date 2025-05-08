@@ -7,6 +7,7 @@ import RegularInput from './RegularInput'
 import AdvancedInput from './AdvancedInput'
 
 interface InputFieldProps {
+  users: any;
   formStyle?: object
   comId?: string
   fillerText?: string
@@ -22,6 +23,7 @@ interface InputFieldProps {
 }
 
 const InputField = ({
+  users,
   formStyle,
   comId,
   fillerText,
@@ -131,6 +133,7 @@ const InputField = ({
           imgDiv={imgDiv}
           imgStyle={imgStyle}
           customImg={customImg}
+          users={users}
           placeHolder={placeHolder}
         />
       ) : (

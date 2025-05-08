@@ -9,6 +9,7 @@ import LoginSection from '../LoginSection/LoginSection'
 import NoComments from './NoComments'
 
 interface CommentSectionProps {
+  users: any;
   overlayStyle?: object
   logIn: {
     loginLink?: string | (() => void)
@@ -23,6 +24,7 @@ interface CommentSectionProps {
 }
 
 const CommentSection = ({
+  users,
   overlayStyle,
   logIn,
   hrStyle,
@@ -71,6 +73,7 @@ const CommentSection = ({
         loginMode()
       ) : (
         <InputField
+          users={users}
           placeHolder={globalStore.placeHolder}
           formStyle={{ margin: '10px 0px' }}
           imgDiv={{ margin: 0 }}
@@ -91,6 +94,7 @@ const CommentSection = ({
             return (
               <div key={i.comId}>
                 <CommentStructure
+                  users={users}
                   info={i}
                   editMode={
                     _.indexOf(globalStore.editArr, i.comId) === -1
@@ -111,6 +115,7 @@ const CommentSection = ({
                     return (
                       <div className='replySection' key={j.comId}>
                         <CommentStructure
+                          users={users}
                           info={j}
                           parentId={i.comId}
                           editMode={

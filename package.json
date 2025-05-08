@@ -1,5 +1,5 @@
 {
-  "name": "react-comments-section",
+  "name": "react-comments-section-fork-old",
   "version": "3.2.0",
   "description": "React component library for a functioning comments section",
   "author": "RiyaNegi",
@@ -39,8 +39,8 @@
     "@types/react": "^16.14.60",
     "@types/react-dom": "^16.9.24",
     "@types/react-draft-wysiwyg": "^1.13.4",
-    "@typescript-eslint/eslint-plugin": "^2.26.0",
-    "@typescript-eslint/parser": "^2.26.0",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
     "babel-eslint": "^10.0.3",
     "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
@@ -75,7 +75,6 @@
     "draftjs-to-html": "^0.9.1",
     "emoji-picker-react": "^3.5.1",
     "html-to-draftjs": "^1.5.0",
-    "react-comments-section": "^3.0.1",
     "react-draft-wysiwyg": "^1.14.7",
     "react-responsive-modal": "^6.2.0",
     "sass": "^1.51.0"

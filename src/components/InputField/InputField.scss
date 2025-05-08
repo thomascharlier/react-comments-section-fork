@@ -129,3 +129,50 @@
   margin-left: 6px;
   width: 100%;
 }
+
+.comment-dropdown-wrapper {
+  position: relative;
+}
+
+.comment-dropdown {
+  position: absolute;
+  width: 100%;
+  top: calc(100% + 5px);
+  left: 0;
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  z-index: 999;
+}
+
+.comment-dropdown .dropdown-item {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.comment-dropdown .dropdown-item:hover {
+  background-color: rgba(0,0,0,.03);
+}
+
+.comment-dropdown .user-initials {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #353535;
+  border-radius: 50%;
+}
+
+.comment-dropdown .user-name {
+  padding-left: 10px;
+}
+
+.comment-dropdown .mention {
+  color: blue;
+}

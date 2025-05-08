@@ -8,6 +8,7 @@ import DeleteModal from './DeleteModal'
 import React from 'react'
 
 interface CommentStructureProps {
+  users: any;
   info: {
     userId: string
     comId: string
@@ -31,6 +32,7 @@ interface CommentStructureProps {
 }
 
 const CommentStructure = ({
+  users,
   info,
   editMode,
   parentId,
@@ -172,6 +174,7 @@ const CommentStructure = ({
         <div className='replysection'>
           {globalStore.replyTop ? replyTopSection() : replyBottomSection()}
           <InputField
+            users={users}
             formStyle={{
               backgroundColor: 'transparent',
               padding: '20px 0px',
@@ -187,6 +190,7 @@ const CommentStructure = ({
     } else {
       return (
         <InputField
+          users={users}
           formStyle={{
             backgroundColor: 'transparent',
             padding: '20px 0px',
